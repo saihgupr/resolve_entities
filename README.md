@@ -1,6 +1,6 @@
 # Resolve Entities
 
-A sophisticated Bash script that resolves natural language phrases to Home Assistant entity IDs using domain-first fuzzy matching. Designed to work with [Automate_AI](https://github.com/saihgupr/automate_ai)
+A sophisticated Bash script that resolves natural language phrases to Home Assistant entity IDs using domain-first fuzzy matching. Designed to work with [Automate_AI](https://github.com/saihgupr/automate_ai).
 
 ## Features
 
