@@ -4,6 +4,19 @@ config.sh
 # Cache files
 .entity_cache
 
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+
+# Bridge scripts (these connect to remote systems)
+send_to_automate_ai*.sh
+
 # Temporary files
 *.tmp
 *.log
