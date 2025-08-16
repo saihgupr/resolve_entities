@@ -15,7 +15,7 @@ venv/
 .env
 
 # Bridge scripts (these connect to remote systems)
-send_to_automate_ai*.sh
+send_to_automate_ai.sh
 
 # Temporary files
 *.tmp
