@@ -69,14 +69,9 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
    HA_TOKEN="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
    ```
 
-4. Make the script executable:
+4. Test the configuration:
    ```bash
-   chmod +x resolve_entities.sh
-   ```
-
-5. Test the configuration:
-   ```bash
-   ./resolve_entities.sh "test light"
+   ./resolve_entities.sh "test kitchen light"
    ```
 
 ## How It Works
@@ -99,7 +94,7 @@ This script is designed to work with the [Automate With Gemini AI](https://githu
 
 1. Replace config.sh.example with config.sh and fill in your info.
 
-3. Update the script (send_to_automate_ai_script.sh) with your actual paths and hostname:
+2. Update the script (send_to_automate_ai_script.sh) with your actual paths and hostname:
    - Replace `/path/to/resolve_entities/` with the actual path to this repository
    - Replace `your-homeassistant.local` with your Home Assistant's hostname or IP
    - Replace `/path/to/automate_ai` with the path to this the automate_ai.sh script
@@ -109,56 +104,19 @@ This script is designed to work with the [Automate With Gemini AI](https://githu
 Once configured, you can use the bridge script to send natural language commands directly to your Home Assistant system:
 
 ```bash
-./send_to_automate_ai.sh "turn on the living room light"
+./send_to_automate_ai.sh "turn on the living room light when shelf motion is on"
 ```
 
 This will:
-1. Resolve "living room light" to the appropriate entity ID
-2. Send the resolved command to your Home Assistant system
-3. Execute the automation via the automate_ai script
+1. Resolve "living room light" and "shelf motion" to the appropriate entity ID
+2. Send the resolved command to your Gemani AI API
+3. Create the automation via the automate_ai script
 
 ## Dependencies
 
 - `curl`: For API requests to Home Assistant
 - `jq`: For JSON parsing
 - `bash`: Shell environment
-
-## Configuration
-
-### Local Configuration (`config.sh`)
-
-The `config.sh` file contains your Home Assistant connection details:
-
-- `HA_URL`: Your Home Assistant URL (e.g., `http://192.168.1.100:8123`)
-- `HA_TOKEN`: Your long-lived access token for API access
-
-**Important:** The `config.sh` file is excluded from Git for security reasons. Always use the `config.sh.example` as a template.
-
-### Bridge Script Configuration
-
-The bridge script (`send_to_automate_ai.sh`) needs to be configured with:
-
-- **Local path**: Path to this repository on your local machine
-- **Remote hostname**: Your Home Assistant system's hostname or IP
-- **Remote path**: Path to the automate_ai scripts on your Home Assistant system
-- **SSH access**: Key-based authentication to your Home Assistant system
-
-## Security Notes
-
-- **Never commit `config.sh`** to version control (it's in `.gitignore`)
-- **Use long-lived access tokens**, not your main Home Assistant password
-- **Secure SSH access** to your Home Assistant system with key-based authentication
-- **Consider using environment variables** for sensitive data in production
-- **Keep your Home Assistant system updated** and behind a firewall
-- **Monitor SSH access logs** for any unauthorized attempts
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
 
 ## License
 
