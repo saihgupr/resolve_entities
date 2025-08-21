@@ -79,9 +79,6 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
    ./resolve_entities.sh "test light"
    ```
 
-
-```
-
 ## How It Works
 
 1. **Domain Detection**: The script analyzes your command to detect the appropriate Home Assistant domain
