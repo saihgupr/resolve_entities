@@ -102,10 +102,10 @@ This script is designed to work with the [Automate With Gemini AI](https://githu
 
 1. Replace config.sh.example with config.sh and fill in your info.
 
-3. Update the bridge script with your actual paths and hostname:
+3. Update the script (send_to_automate_ai_script.sh) with your actual paths and hostname:
    - Replace `/path/to/resolve_entities/` with the actual path to this repository
    - Replace `your-homeassistant.local` with your Home Assistant's hostname or IP
-   - Ensure the remote path `/share/scripts/automate_ai` exists on your Home Assistant system
+   - Replace `/path/to/automate_ai` with the path to this the automate_ai.sh script
 
 ### Using the Bridge Script
 
