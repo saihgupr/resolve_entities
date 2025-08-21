@@ -117,7 +117,3 @@ This will:
 - `curl`: For API requests to Home Assistant
 - `jq`: For JSON parsing
 - `bash`: Shell environment
-
-## License
-
-This project is open source. Please check the LICENSE file for details.
