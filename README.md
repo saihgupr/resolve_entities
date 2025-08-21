@@ -99,8 +99,6 @@ This script is designed to work with the [Automate With Gemini AI](https://githu
    - Replace `your-homeassistant.local` with your Home Assistant's hostname or IP
    - Replace `/path/to/automate_ai` with the path to this the automate_ai.sh script
 
-### Using the Bridge Script
-
 Once configured, you can use the bridge script to send natural language commands directly to your Home Assistant system:
 
 ```bash
@@ -109,7 +107,7 @@ Once configured, you can use the bridge script to send natural language commands
 
 This will:
 1. Resolve "living room light" and "shelf motion" to the appropriate entity ID
-2. Send the resolved command to your Gemani AI API
+2. Send the resolved command to your Gemini AI API
 3. Create the automation via the automate_ai script
 
 ## Dependencies
