@@ -88,7 +88,7 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 
 ## Integration with Automate AI
 
-This script is designed to work with the [Automate With Gemini AI](https://github.com/saihgupr/Automate-with-Gemini-AI) project, which handles the actual Home Assistant automation creation.
+This script is designed to work with the [Automate with Gemini AI](https://github.com/saihgupr/Automate-with-Gemini-AI) project, which handles the actual Home Assistant automation creation.
 
 ### Setting Up the Bridge Script
 
@@ -114,4 +114,3 @@ This will:
 
 - `curl`: For API requests to Home Assistant
 - `jq`: For JSON parsing
-- `bash`: Shell environment
