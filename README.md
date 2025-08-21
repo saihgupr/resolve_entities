@@ -107,7 +107,7 @@ Once configured, you can use the bridge script to send natural language commands
 
 This will:
 1. Resolve "living room light" and "shelf motion" to the appropriate entity ID
-2. Send the resolved command to your Gemini AI API
+2. Send the resolved command to Gemini AI API
 3. Create the automation via the automate_ai script
 
 ## Dependencies
