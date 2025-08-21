@@ -11,6 +11,41 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 - **Caching**: Caches entity data for improved performance
 - **Configurable**: Easy configuration via `config.sh`
 
+## Usage
+
+### Basic Usage
+```bash
+./resolve_entities.sh "turn on the living room light when shelf motion is on"
+```
+
+### Use With [Automate with Gemini AI](https://github.com/saihgupr/Automate-with-Gemini-AI)
+```bash
+./send_to_automate_ai_script.sh "turn on the living room light when shelf motion is on"
+```
+
+### Update Entity Cache
+```bash
+./resolve_entities.sh --update "turn on the living room light when shelf motion on"
+```
+
+### Examples
+```bash
+# Lights
+./resolve_entities.sh "turn on the living room light when shelf motion is on"
+# Output: turn on light.living_room_ceiling_light when binary_sensor.shelf_motion is on
+
+# Switches
+./resolve_entities.sh "turn off the coffee maker at noon"
+# Output: turn off switch.coffee_maker at noon
+
+# Climate
+./resolve_entities.sh "set thermostat to 72 degrees when occupancy is on"
+# Output: set climate.thermostat to 72 degrees when input_boolean.occupancy is on
+
+# Notifications
+./resolve_entities.sh "notify my iphone that dinner is ready when kitchen button pressed"
+# Output: notify.mobile_app_iphone that dinner is ready when button.kitchen pressed
+
 ## Installation
 
 1. Clone this repository:
@@ -44,35 +79,7 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
    ./resolve_entities.sh "test light"
    ```
 
-## Usage
 
-### Basic Usage
-```bash
-./resolve_entities.sh "turn on the living room light"
-```
-
-### Update Entity Cache
-```bash
-./resolve_entities.sh --update "turn on the living room light"
-```
-
-### Examples
-```bash
-# Lights
-./resolve_entities.sh "turn on living room ceiling light"
-# Output: turn on light.living_room_ceiling_light
-
-# Switches
-./resolve_entities.sh "turn off the coffee maker"
-# Output: turn off switch.coffee_maker
-
-# Climate
-./resolve_entities.sh "set thermostat to 72 degrees"
-# Output: set climate.thermostat to 72 degrees
-
-# Notifications
-./resolve_entities.sh "notify my iphone that dinner is ready"
-# Output: notify.mobile_app_iphone that dinner is ready
 ```
 
 ## How It Works
@@ -89,32 +96,11 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 
 ## Integration with Automate AI
 
-This script is designed to work with the [automate_ai](https://github.com/saihgupr/automate_ai) project, which handles the actual Home Assistant automation execution.
+This script is designed to work with the [Automate With Gemini AI](https://github.com/saihgupr/Automate-with-Gemini-AI) project, which handles the actual Home Assistant automation execution.
 
 ### Setting Up the Bridge Script
 
-1. Create a bridge script to connect to your Home Assistant system:
-   ```bash
-   # Create send_to_automate_ai.sh
-   cat > send_to_automate_ai.sh << 'EOF'
-   #!/bin/bash
-   
-   resolved="$(/path/to/resolve_entities/resolve_entities.sh "$*")"
-   
-   ssh root@your-homeassistant.local "cd /share/scripts/automate_ai && ./automate_ai.sh \"$resolved\""
-   EOF
-   
-   chmod +x send_to_automate_ai.sh
-   ```
-
-2. Configure SSH access to your Home Assistant system:
-   ```bash
-   # Generate SSH key if you don't have one
-   ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
-   
-   # Copy your public key to Home Assistant
-   ssh-copy-id root@your-homeassistant.local
-   ```
+1. Replace config.sh.example with config.sh and fill in your info.
 
 3. Update the bridge script with your actual paths and hostname:
    - Replace `/path/to/resolve_entities/` with the actual path to this repository
