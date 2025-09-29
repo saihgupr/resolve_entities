@@ -4,6 +4,7 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 
 ## Features
 
+- **Optimized Performance**: Significantly faster entity resolution, especially for complex commands and large Home Assistant instances, thanks to `awk`-powered fuzzy matching and domain-based filtering.
 - **Domain Detection**: Automatically detects the appropriate Home Assistant domain (light, switch, climate, etc.) based on keywords
 - **Fuzzy Matching**: Uses intelligent scoring to find the best entity matches
 - **Multi-word Support**: Handles complex phrases like "living room ceiling light"
@@ -76,9 +77,9 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 
 ## How It Works
 
-1. **Domain Detection**: The script analyzes your command to detect the appropriate Home Assistant domain
+1. **Domain Detection**: The script analyzes your command to detect the appropriate Home Assistant domain. It then intelligently filters the list of available entities based on this detected domain.
 2. **Entity Fetching**: Retrieves all entities from your Home Assistant instance
-3. **Fuzzy Matching**: Uses a scoring system to find the best entity match:
+3. **Fuzzy Matching**: Uses a highly optimized `awk`-powered scoring system to find the best entity match within the filtered entities:
    - Exact matches: 100 points
    - Starts with: 80 points
    - Word boundary: 60 points
