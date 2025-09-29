@@ -30,6 +30,7 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 ```
 
 ### Examples
+```bash
 # Lights
 ./resolve_entities.sh "turn on the living room light when shelf motion is on"
 # Output: turn on light.living_room_ceiling_light when binary_sensor.shelf_motion is on
@@ -76,9 +77,9 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 
 ## How It Works
 
-1. **Domain Detection**: The script analyzes your command to detect the appropriate Home Assistant domain. It then intelligently filters the list of available entities based on this detected domain.
+1. **Domain Detection**: The script analyzes your command to detect the appropriate Home Assistant domain
 2. **Entity Fetching**: Retrieves all entities from your Home Assistant instance
-3. **Fuzzy Matching**: Uses a highly optimized `awk`-powered scoring system to find the best entity match within the filtered entities:
+3. **Fuzzy Matching**: Uses a scoring system to find the best entity match:
    - Exact matches: 100 points
    - Starts with: 80 points
    - Word boundary: 60 points
