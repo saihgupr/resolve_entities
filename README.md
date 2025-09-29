@@ -30,21 +30,19 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 ```
 
 ### Examples
-
-## Examples
-### Lights
+# Lights
 ./resolve_entities.sh "turn on the living room light when shelf motion is on"
 # Output: turn on light.living_room_ceiling_light when binary_sensor.shelf_motion is on
 
-### Switches
+# Switches
 ./resolve_entities.sh "turn off the coffee maker at noon"
 # Output: turn off switch.coffee_maker at noon
 
-### Climate
+# Climate
 ./resolve_entities.sh "set thermostat to 72 degrees when occupancy is on"
 # Output: set climate.thermostat to 72 degrees when input_boolean.occupancy is on
 
-### Notifications
+# Notifications
 ./resolve_entities.sh "notify my iphone that dinner is ready when kitchen button pressed"
 # Output: notify.mobile_app_iphone that dinner is ready when button.kitchen pressed
 
