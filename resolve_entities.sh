@@ -149,86 +149,103 @@ fuzzy_search_entity_domain() {
   local search_term="$1"
   local entities="$2"
   local detected_domain="$3"
-  
+
   if [ -z "$search_term" ] || [ -z "$entities" ]; then return 1; fi
-  
+
   local search_lower
   search_lower=$(echo "$search_term" | tr '[:upper:]' '[:lower:]')
-  
-  local best_match=""
-  local best_score=0
-  
-  while IFS='|' read -r entity_id friendly_name; do
-    # If domain is detected, only consider entities from that domain
-    if [ -n "$detected_domain" ] && [[ "$entity_id" != "$detected_domain".* ]]; then
-      continue
-    fi
-    
-    local score=0
-    local entity_lower
-    entity_lower=$(echo "$entity_id" | tr '[:upper:]' '[:lower:]')
-    local friendly_lower
-    friendly_lower=$(echo "$friendly_name" | tr '[:upper:]' '[:lower:]')
-    
-    # Exact match
-    if [[ "$friendly_lower" == "$search_lower" ]] || [[ "$entity_lower" == "$search_lower" ]]; then 
-      score=100;
-    # Starts with match
-    elif [[ "$friendly_lower" == "$search_lower"* ]] || [[ "$entity_lower" == "$search_lower"* ]]; then 
-      score=80;
-    # Word boundary match
-    elif [[ "$friendly_lower" =~ (^|[^a-z])$search_lower([^a-z]|$) ]] || [[ "$entity_lower" =~ (^|[^a-z])$search_lower([^a-z]|$) ]]; then 
-      score=60;
-    # Contains match
-    elif [[ "$friendly_lower" == *"$search_lower"* ]] || [[ "$entity_lower" == *"$search_lower"* ]]; then 
-      score=40;
-    fi
-    
-    # For multi-word patterns, check if all words are present
-    if [ "$score" -eq 0 ] && [[ "$search_lower" == *" "* ]]; then
-      local all_words_present=1
-      local word_score=0
-      for word in $search_lower; do
-        local word_found=0
-        if [[ "$friendly_lower" == *"$word"* ]] || [[ "$entity_lower" == *"$word"* ]]; then
-          word_found=1
-          word_score=$((word_score + 20))
-        fi
-        if [ "$word_found" -eq 0 ]; then
-          all_words_present=0
-          break
-        fi
-      done
-      if [ "$all_words_present" -eq 1 ]; then
-        score=$word_score
-      fi
-    fi
-    
-    if [ "$score" -eq 0 ]; then continue; fi
 
-    # --- Scoring Penalty for Length Difference ---
-    local len_diff=$(( ${#friendly_lower} - ${#search_lower} ))
-    len_diff=${len_diff#-}
-    score=$(( score - len_diff ))
+  local search_words_awk=""
+  if [[ "$search_lower" == *" "* ]]; then
+    search_words_awk=$(echo "$search_lower" | tr ' ' '|') # For awk regex
+  fi
 
-    # --- Domain Bonus (if domain was detected) ---
-    if [ -n "$detected_domain" ] && [[ "$entity_id" == "$detected_domain".* ]]; then
-      score=$((score + 20))
-    fi
+  local AWK_SCRIPT=$(cat <<'EOF'
+BEGIN {
+  best_score = 0
+  best_match = ""
+  split(search_lower, sl_words, " ")
+}
+{
+  split($0, a, "|")
+  entity_id = a[1]
+  friendly_name = a[2]
 
-    if [ "$score" -gt "$best_score" ]; then
-      best_score=$score
-      best_match="$entity_id"
-    fi
-  done <<< "$entities"
-  
-  # Lowered threshold to be more permissive
-  if [ "$best_score" -ge 30 ]; then
-    echo "$best_match"
-    return 0
-  elif [[ "$search_term" == *" "* ]] && [ "$best_score" -ge 20 ]; then
-    # Lower threshold for multi-word patterns
-    echo "$best_match"
+  entity_lower = tolower(entity_id)
+  friendly_lower = tolower(friendly_name)
+
+  score = 0
+
+  # Exact match
+  if (friendly_lower == search_lower || entity_lower == search_lower) {
+    score = 100
+  }
+  # Starts with match
+  else if (substr(friendly_lower, 1, length(search_lower)) == search_lower || substr(entity_lower, 1, length(search_lower)) == search_lower) {
+    score = 80
+  }
+  # Word boundary match (approximate with spaces)
+  else if (index(" " friendly_lower " ", " " search_lower " ") > 0 || index(" " entity_lower " ", " " search_lower " ") > 0) {
+    score = 60
+  }
+  # Contains match
+  else if (index(friendly_lower, search_lower) > 0 || index(entity_lower, search_lower) > 0) {
+    score = 40
+  }
+
+  # For multi-word patterns, check if all words are present
+  if (score == 0 && search_words_awk != "") {
+    all_words_present = 1
+    word_score = 0
+    for (i_word in sl_words) {
+      word = sl_words[i_word]
+      word_found = 0
+      if (index(friendly_lower, word) > 0 || index(entity_lower, word) > 0) {
+        word_found = 1
+        word_score += 20
+      }
+      if (word_found == 0) {
+        all_words_present = 0
+        break
+      }
+    }
+    if (all_words_present == 1) {
+      score = word_score
+    }
+  }
+
+  if (score == 0) { next }
+
+  # --- Scoring Penalty for Length Difference ---
+  len_diff = length(friendly_lower) - length(search_lower)
+  if (len_diff < 0) { len_diff = -len_diff }
+  score -= len_diff
+
+  # --- Domain Bonus (if domain was detected) ---
+  if (detected_domain != "" && substr(entity_id, 1, length(detected_domain)) == detected_domain) {
+    score += 20
+  }
+
+  if (score > best_score) {
+    best_score = score
+    best_match = entity_id
+  }
+}
+END {
+  if (best_score >= 30) {
+    print best_match
+  } else if (search_words_awk != "" && best_score >= 20) {
+    print best_match
+  }
+}
+EOF
+)
+
+  local result
+  result=$(echo "$entities" | awk -v search_lower="$search_lower" -v detected_domain="$detected_domain" -v search_words_awk="$search_words_awk" "$AWK_SCRIPT")
+
+  if [ -n "$result" ]; then
+    echo "$result"
     return 0
   else
     return 1
@@ -237,61 +254,58 @@ fuzzy_search_entity_domain() {
 
 # The domain-first entity resolution implementation
 resolve_entities() {
-  local command="$1"
-  local entities="$2"
+    local command="$1"
+    local all_entities="$2" # Renamed to avoid confusion with filtered entities
   
-  # First, handle notify commands
-  command=$(resolve_notify_command "$command")
+    # First, handle notify commands
+    command=$(resolve_notify_command "$command")
   
-  local temp_command
-  temp_command=$(echo "$command" | tr '[:upper:]' '[:lower:]')
+    local temp_command
+    temp_command=$(echo "$command" | tr '[:upper:]' '[:lower:]')
   
-  # Continue processing until no more matches are found
-  local continue_processing=true
-  while [ "$continue_processing" = true ]; do
-    continue_processing=false
-    
-    # Find potential entity phrases (2-4 word combinations)
-    local words=($temp_command)
-    local word_count=${#words[@]}
-    
-    # Process phrases from longest to shortest (4 words, then 3, then 2)
-    for phrase_length in 4 3 2; do
-      for ((i=0; i<=word_count-phrase_length; i++)); do
-        local phrase=""
-        for ((j=0; j<phrase_length; j++)); do
-          if [ $j -gt 0 ]; then phrase="$phrase "; fi
-          phrase="$phrase${words[$((i+j))]}"
-        done
-        
-        # Detect domain for this phrase
-        local detected_domain
-        detected_domain=$(detect_domain "$phrase")
-        
-        # Only try to resolve if we detected a domain
-        if [ -n "$detected_domain" ]; then
+    # Continue processing until no more matches are found
+    local continue_processing=true
+    while [ "$continue_processing" = true ]; do
+      continue_processing=false
+  
+      # Find potential entity phrases (2-4 word combinations)
+      local words=($temp_command)
+      local word_count=${#words[@]}
+  
+      # Process phrases from longest to shortest (4 words, then 3, then 2)
+      for phrase_length in 4 3 2; do
+        for ((i=0; i<=word_count-phrase_length; i++)); do
+          local phrase=""
+          for ((j=0; j<phrase_length; j++)); do
+            if [ $j -gt 0 ]; then phrase="$phrase "; fi
+            phrase="$phrase${words[$((i+j))]}"
+          done
+  
+          # Detect domain for this phrase
+          local detected_domain
+          detected_domain=$(detect_domain "$phrase")
+  
+          local entities_to_search="$all_entities"
+          if [ -n "$detected_domain" ]; then
+            # Filter entities by domain before searching
+            entities_to_search=$(echo "$all_entities" | grep "^$detected_domain\." || true) # Use || true to prevent pipefail if no matches
+          fi
+  
           # Try to resolve the phrase
           local entity_id
-          if [ -n "$detected_domain" ]; then
-            entity_id=$(fuzzy_search_entity_domain "$phrase" "$entities" "$detected_domain")
-          else
-            # Fallback to searching all entities if no domain detected
-            entity_id=$(fuzzy_search_entity_domain "$phrase" "$entities" "")
-          fi
+          entity_id=$(fuzzy_search_entity_domain "$phrase" "$entities_to_search" "$detected_domain")        
+        if [ $? -eq 0 ] && [ -n "$entity_id" ]; then
+          log "INFO: Resolved '$phrase' to '$entity_id' (domain: ${detected_domain:-none})"
           
-          if [ $? -eq 0 ] && [ -n "$entity_id" ]; then
-            log "INFO: Resolved '$phrase' to '$entity_id' (domain: ${detected_domain:-none})"
-            
-            # Replace the phrase with the entity ID
-            command="${command//$phrase/$entity_id}"
-            temp_command="${temp_command//$phrase/$entity_id}"
-            
-            # Mark that we found a match and should continue processing
-            continue_processing=true
-            
-            # Break out of inner loop since we found a match
-            break
-          fi
+          # Replace the phrase with the entity ID
+          command="${command//$phrase/$entity_id}"
+          temp_command="${temp_command//$phrase/$entity_id}"
+          
+          # Mark that we found a match and should continue processing
+          continue_processing=true
+          
+          # Break out of inner loop since we found a match
+          break
         fi
       done
       
