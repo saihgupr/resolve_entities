@@ -46,7 +46,7 @@ A sophisticated Bash script that resolves natural language phrases to Home Assis
 # Notifications
 ./resolve_entities.sh "notify my iphone that dinner is ready when kitchen button pressed"
 # Output: notify.mobile_app_iphone that dinner is ready when button.kitchen pressed
-
+```
 ## Installation
 
 1. Clone this repository:
